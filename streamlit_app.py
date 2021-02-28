@@ -53,7 +53,7 @@ with col2:
 
 #Character connection graph
 st.write('## Character connection graph ##')
-chap = st.number_input('Pick a chapter number (between 1 and 676)', min_value = 1, max_value = 676)
+chap = st.slider('Select a chapter number', min_value = 1, max_value = 676, step = 1)
 
 #Parameters for graphing
 show_all = st.checkbox('Show all connections regardless of size (recommended for early chapters)')
