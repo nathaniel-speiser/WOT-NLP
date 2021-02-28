@@ -13,7 +13,61 @@ from sklearn.preprocessing import MinMaxScaler
 import string
 from wordcloud import WordCloud
 
+#Useful constants/lists
+
+titles = ['The Eye of the World',
+ 'The Great Hunt',
+ 'The Dragon Reborn',
+ 'The Shadow Rising',
+ 'The Fires of Heaven',
+ 'Lord of Chaos',
+ 'A Crown of Swords',
+ 'The Path of Daggers',
+ 'Winter\'s Heart',
+ 'Crossroads of Twilight',
+ 'Knife of Dreams',
+ 'The Gathering Storm',
+ 'Towers of Midnight',
+ 'A Memory of Light']
+
+topics = ['Rand', 'Perrin', 'Mat', 'Nynaeve', 'Egwene', 'Moiraine', 'Aiel', 'Gawyn', 'Elayne', 'Seanchan', 'Siuan',\
+         'Cadsuane politics', 'Black Tower', 'White Tower Politics', 'Horn of Valere', 'Faile/Shaido', 'Min',\
+         'Last Battle', 'Emond\'s Field','Thom']
+starts = [0,54, 105, 162, 220, 277, 334, 376, 408, 444, 476, 515, 567, 626]
+ends = [54, 105, 162, 220, 277, 334, 376, 408, 444, 476, 515, 567, 626, 676]
+tick_locations = np.array([ 27,  79, 133, 191, 248, 305, 355, 392, 426, 460, 495, 541, 596, 651])
+num_chapters = [54, 51,57,58,57,57,42,32,36,32,39,52,59,51]
+ratings = [4.17, 4.22, 4.25, 4.23,4.15,4.13, 4.03, 3.91, 3.94, 3.81, 4.14, 4.36, 4.41, 4.49]
+
+rating_arr = []
+for i,num in enumerate(num_chapters):
+    for _ in range(num):
+        rating_arr.append(ratings[i])
+rating_arr = np.array(rating_arr)
+
+
+def make_stopwords():
+    """
+    Return a list of stopword based on the nltk stopwords, adjusted to the format that I've put the data in and with some extras
+    """
+    sw = stopwords.words('english')
+    sw = [w.translate(str.maketrans('', '', string.punctuation)) for w in sw]
+    sw = list(set(sw))
+    sw.extend(['said','did','like', 'woman', 'man'])
+    return sw
+
 def display_topics(model, feature_names, no_top_words, topic_names=None):
+    """
+    Print out the top words for each topic in a sklearn model, such as NMF
+
+    Args:
+
+    model: trained sklearn model, such as NMF
+    feature_names: Names of the words, usually vectorizer.get_feature_names()
+    no_top_words: Number of top words
+    topic_names: optional list of the names assigned to topic. Useful once you've decided the topics are meaningful and you want to name them.
+
+    """
     for ix, topic in enumerate(model.components_):
         if not topic_names or not topic_names[ix]:
             print("\nTopic ", ix)
@@ -22,7 +76,15 @@ def display_topics(model, feature_names, no_top_words, topic_names=None):
         print(", ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
 
 def plot_topic_words(model, feature_names, topic_num, topics):
+    """
+    Plot a bar graph of the most important word for a topic in a trained sklearn model
 
+    Args:
+    model: trained sklearn model, such as NMF
+    feature_names: Names of the words, usually vectorizer.get_feature_names()
+    topic_num: index of the topic you want to visualize
+    topics: List of strings of the assigned names of the topics
+    """
     topic_name = topics[topic_num]
     topic = model.components_[topic_num]
     top_indices = topic.argsort()[:-11:-1]
@@ -36,6 +98,17 @@ def plot_topic_words(model, feature_names, topic_num, topics):
     plt.show()
 
 def topic_wordcloud(model, feature_names, topic_num, topics, ret = False):
+    """
+    Display/return a word cloud of the 50 most important wors in a topic
+
+    Args:
+    model: trained sklearn model, such as NMF
+    feature_names: Names of the words, usually vectorizer.get_feature_names()
+    topic_num: index of the topic you want to visualize
+    topics: List of strings of the assigned names of the topics
+    ret: Whether to return or simply display (for streamlit app)
+
+    """
     topic_name = topics[topic_num]
     topic = model.components_[topic_num]
     top_indices = topic.argsort()[:-51:-1]
@@ -62,6 +135,15 @@ def topic_wordcloud(model, feature_names, topic_num, topics, ret = False):
     else: plt.show()
 
 def plot_chapter_topics_book(topics_by_chapter, book_num, ret = False):
+    """
+    Plot the topic presence for a single book
+
+    Args:
+    topics_by_chapter: df with all the topic presences across all chapters
+    book_num: Number of the book (1-14)
+    ret: Whether to return or simply display (for streamlit app)
+
+    """
     i=book_num-1
     title = titles[i]
     start = starts[i]
@@ -83,26 +165,15 @@ def plot_chapter_topics_book(topics_by_chapter, book_num, ret = False):
 
 
 
-
-
-topics = ['Rand', 'Perrin', 'Mat', 'Nynaeve', 'Egwene', 'Moiraine', 'Aiel', 'Gawyn', 'Elayne', 'Seanchan', 'Siuan',\
-         'Cadsuane politics', 'Black Tower', 'White Tower Politics', 'Horn of Valere', 'Faile Kidnapping', 'Min',\
-         'Last Battle', 'Emond\'s Field','Thom']
-starts = [0,54, 105, 162, 220, 277, 334, 376, 408, 444, 476, 515, 567, 626]
-ends = [54, 105, 162, 220, 277, 334, 376, 408, 444, 476, 515, 567, 626, 676]
-tick_locations = np.array([ 27,  79, 133, 191, 248, 305, 355, 392, 426, 460, 495, 541, 596, 651])
-num_chapters = [54, 51,57,58,57,57,42,32,36,32,39,52,59,51]
-ratings = [4.17, 4.22, 4.25, 4.23,4.15,4.13, 4.03, 3.91, 3.94, 3.81, 4.14, 4.36, 4.41, 4.49]
-#for plotting
-rating_arr = []
-for i,num in enumerate(num_chapters):
-    for _ in range(num):
-        rating_arr.append(ratings[i])
-rating_arr = np.array(rating_arr)
-
 def plot_topic_time(topics_by_chapter,topic, ret=False):
     """
-    Plot the prevalence of a topic over time (all chapters)
+    Plot the presence of a single topic across all the books
+
+    Args:
+    topics_by_chapter: df with all the topic presences across all chapters. Column names should be the topics
+    topic: String name of the topic to be displayed
+    ret: Whether to return or simply display (for streamlit app)
+
     """
     y = topics_by_chapter[topic]
     x = topics_by_chapter['cumulative_chapter_number']
@@ -120,7 +191,13 @@ def plot_topic_time(topics_by_chapter,topic, ret=False):
 
 def plot_topic_and_rating(topics_by_chapter,topic, ret=False):
     """
-    Plot the prevalence of a topic over time (all chapters)
+    Plot the presence of a single topic across all the books, overlayed with the ratings of the books
+
+    Args:
+    topics_by_chapter: df with all the topic presences across all chapters. Column names should be the topics
+    topic: String name of the topic to be displayed
+    ret: Whether to return or simply display (for streamlit app)
+
     """
     y = topics_by_chapter[topic]
     x = topics_by_chapter['cumulative_chapter_number']
@@ -139,23 +216,6 @@ def plot_topic_and_rating(topics_by_chapter,topic, ret=False):
     plt.legend()
     plt.show()
 
-def make_stopwords():
-    sw = stopwords.words('english')
-    sw = [w.translate(str.maketrans('', '', string.punctuation)) for w in sw]
-    sw = list(set(sw))
-    sw.extend(['said','did','like', 'woman', 'man'])
 
-titles = ['The Eye of the World',
- 'The Great Hunt',
- 'The Dragon Reborn',
- 'The Shadow Rising',
- 'The Fires of Heaven',
- 'Lord of Chaos',
- 'A Crown of Swords',
- 'The Path of Daggers',
- 'Winter\'s Heart',
- 'Crossroads of Twilight',
- 'Knife of Dreams',
- 'The Gathering Storm',
- 'Towers of Midnight',
- 'A Memory of Light']
+
+
