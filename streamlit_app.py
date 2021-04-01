@@ -12,13 +12,13 @@ with open('saved_models/nmf_model.pkl', 'rb') as f:
 
 with open('saved_models/vec_feature_names.pkl', 'rb') as f:
     vec_feature_names = pickle.load(f)
-graphs_df = pd.read_pickle('saved_models/graphs_df.bz2')
+graphs_df = pd.read_pickle('saved_models/graphs_df.bz2',)
 
 important_chars = ['rand', 'perrin', 'mat', 'egwene', 'elayne', 'nynaeve', 'moiraine', 'min', 'faile', 'aviendha',
                   'gawyn', 'lan', 'siuan', 'morgase', 'cadsuane', 'ituralde', 'galad', 'pevara', 'tuon', 'elaida',
                   'androl', 'taim', 'logain', 'gareth', 'rhuarc', 'graendal', 'moridin', 'moghedien', 'verin',
                   'birgitte', 'loial', 'tam', 'demandred', 'sammael', 'thom']
-tbc = pd.read_pickle('saved_models/topics_by_chapter.pkl')
+tbc = pd.read_pickle('saved_models/topics_by_chapter.bz2')
 
 ##################################################################
 
